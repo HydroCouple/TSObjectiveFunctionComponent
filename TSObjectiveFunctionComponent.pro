@@ -57,8 +57,8 @@ HEADERS += ./include/stdafx.h\
 SOURCES +=./src/stdafx.cpp \ 
           ./src/tsobjectivefunctioncomponentinfo.cpp \
           ./src/tsobjectivefunctioncomponent.cpp \
-    src/objectiveinput.cpp \
-    src/objectiveoutput.cpp
+          ./src/objectiveinput.cpp \
+          ./src/objectiveoutput.cpp
 
 
 macx{

@@ -135,7 +135,16 @@ class TSOBJECTIVEFUNCTIONCOMPONENT_EXPORT TSObjectiveFunctionComponent : public 
     void createOutputs() override;
 
 
+    /*!
+     * \brief getMinDate
+     * \return
+     */
     double getMinDate() const;
+
+    /*!
+     * \brief writeObjectiveFunctionValues
+     */
+    void writeOutput();
 
   private:
 

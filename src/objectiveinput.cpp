@@ -36,22 +36,23 @@ void ObjectiveInput::initialize()
 
   m_validLength = 0;
 
-  for(int i = 0 ; i < m_timeSeries->numRows() ; i++)
+  for(int i = 0 ; i < m_timeSeries->numRows() - 1; i++)
   {
-    double dateTime = m_timeSeries->dateTime(i);
+    double dateTime1 = m_timeSeries->dateTime(i);
+    double dateTime2 = m_timeSeries->dateTime(i+1);
 
-    if(dateTime >= startTime)
+    if(dateTime2 >= startTime && dateTime1 <= startTime)
     {
       m_startDateTimeIndex = i;
-      m_currentDateTime = dateTime;
+      m_currentDateTime = dateTime2;
       m_validLength = 0;
 
       for(int j = i; j < m_timeSeries->numRows(); j++)
       {
-        dateTime = m_timeSeries->dateTime(j);
+        dateTime1 = m_timeSeries->dateTime(j);
         m_validLength ++;
 
-        if(dateTime >= endTime)
+        if(dateTime1 >= endTime)
         {
           break;
         }
@@ -60,7 +61,6 @@ void ObjectiveInput::initialize()
     }
   }
 }
-
 
 int ObjectiveInput::startDateTimeIndex() const
 {
@@ -172,7 +172,6 @@ void ObjectiveInput::applyData()
     double providerCurrentTime = timeGeometryDataItem->time(currentTimeIndex)->julianDay();
     double providerPreviousTime = timeGeometryDataItem->time(previousTimeIndex)->julianDay();
 
-
     if(m_currentDateTime >=  providerPreviousTime && m_currentDateTime <= providerCurrentTime)
     {
       double factor = 0.0;
@@ -212,7 +211,6 @@ TimeSeries *ObjectiveInput::timeSeries() const
 {
   return m_timeSeries;
 }
-
 
 bool ObjectiveInput::equalsGeometry(IGeometry *geom1, IGeometry *geom2, double epsilon)
 {

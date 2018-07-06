@@ -91,6 +91,7 @@ void TSObjectiveFunctionComponent::update(const QList<HydroCouple::IOutput *> &r
 
     if(minDate >=  m_endDate)
     {
+      writeOutput();
       setStatus(IModelComponent::Done , "Simulation finished successfully", 100);
     }
     else
@@ -389,7 +390,11 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
                         m_algorithms.push_back(algorithm);
                         m_inputTSFiles.push_back(timeSeriesObj);
                       }
-
+                      else
+                      {
+                        message = "Unable to read ts file";
+                        return false;
+                      }
                     }
                     else
                     {
@@ -492,7 +497,8 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
 
     if (m_outputCSVStream.device()->open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
-      m_outputCSVStream << "Objective Function Values" << endl;
+      m_outputCSVStream.setRealNumberPrecision(10);
+      m_outputCSVStream.setRealNumberNotation(QTextStream::SmartNotation);
     }
   }
 
@@ -552,6 +558,62 @@ double TSObjectiveFunctionComponent::getMinDate() const
   }
 
   return minDate;
+}
+
+void TSObjectiveFunctionComponent::writeOutput()
+{
+  if (m_outputCSVStream.device() && m_outputCSVStream.device()->isOpen())
+  {
+    if(m_objectiveInputs.size())
+    {
+      ObjectiveInput *objectiveInput = m_objectiveInputs[0];
+
+      m_outputCSVStream << objectiveInput->id();
+
+      for(int j = 1; j < objectiveInput->geometryCount() ; j++)
+      {
+        m_outputCSVStream <<  ", " << objectiveInput->id();
+      }
+
+      for(size_t i = 1; i < m_objectiveInputs.size(); i++)
+      {
+        objectiveInput = m_objectiveInputs[i];
+
+        for(int j = 0; j < objectiveInput->geometryCount() ; j++)
+        {
+          m_outputCSVStream <<  ", " << objectiveInput->id();
+        }
+      }
+
+      m_outputCSVStream << endl;
+
+      ObjectiveOutput *objectiveOutput = m_objectiveOutputs[0];
+      double value = 0;
+
+      objectiveOutput->getValue(0,&value);
+      m_outputCSVStream << value;
+
+      for(int j = 1; j < objectiveOutput->geometryCount() ; j++)
+      {
+        objectiveOutput->getValue(j,&value);
+        m_outputCSVStream <<  ", " << value;
+      }
+
+      for(int i = 1; i < m_objectiveOutputs.size(); i++)
+      {
+        objectiveOutput = m_objectiveOutputs[i];
+
+        for(int j = 0; j < objectiveOutput->geometryCount() ; j++)
+        {
+          objectiveOutput->getValue(j,&value);
+          m_outputCSVStream <<  ", " << value;
+        }
+      }
+
+      m_outputCSVStream << endl;
+      m_outputCSVStream.flush();
+    }
+  }
 }
 
 const unordered_map<string, int> TSObjectiveFunctionComponent::m_inputFileFlags({
