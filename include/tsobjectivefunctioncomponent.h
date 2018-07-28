@@ -154,8 +154,8 @@ class TSOBJECTIVEFUNCTIONCOMPONENT_EXPORT TSObjectiveFunctionComponent : public 
     TSObjectiveFunctionComponent *m_parent;
     QList<HydroCouple::ICloneableModelComponent*> m_clones;
     IdBasedArgumentString *m_inputFilesArgument;
-    static const std::unordered_map<std::string,int> m_inputFileFlags,
-                                                     m_optionsFlags;
+    static const std::unordered_map<std::string,int> m_inputFileFlags;
+    static const std::unordered_map<std::string,int> m_optionsFlags;
 
     std::vector<std::string> m_objectiveNames;
     std::vector<Algorithm> m_algorithms;
