@@ -32,6 +32,7 @@ ObjectiveOutput::~ObjectiveOutput()
 
 void ObjectiveOutput::updateValues(HydroCouple::IInput *querySpecifier)
 {
+
   if(!m_objectiveFunctionComponent->workflow())
   {
     ITimeComponentDataItem* timeExchangeItem = dynamic_cast<ITimeComponentDataItem*>(querySpecifier);
@@ -108,8 +109,7 @@ void ObjectiveOutput::updateValues()
               denom += diffDenom * diffDenom;
             }
 
-            double metric = 1 - numer/denom;
-            metric = metric * -1.0;
+            double metric = numer/denom;
             setValue(g, &metric);
           }
           break;

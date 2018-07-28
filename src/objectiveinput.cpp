@@ -31,6 +31,7 @@ ObjectiveInput::~ObjectiveInput()
 
 void ObjectiveInput::initialize()
 {
+
   double startTime = m_objectiveFunctionComponent->timeHorizon()->julianDay();
   double endTime = startTime + m_objectiveFunctionComponent->timeHorizon()->duration();
 
@@ -38,21 +39,27 @@ void ObjectiveInput::initialize()
 
   for(int i = 0 ; i < m_timeSeries->numRows() - 1; i++)
   {
-    double dateTime1 = m_timeSeries->dateTime(i);
-    double dateTime2 = m_timeSeries->dateTime(i+1);
+    double dateTime = m_timeSeries->dateTime(i);
 
-    if(dateTime2 >= startTime && dateTime1 <= startTime)
+    if(dateTime >= startTime)
     {
       m_startDateTimeIndex = i;
-      m_currentDateTime = dateTime2;
+      m_nextDateTimeIndex = 0;
+      m_currentDateTime = dateTime;
+
+      addTime(new SDKTemporal::DateTime(m_currentDateTime, nullptr));
+
       m_validLength = 0;
 
       for(int j = i; j < m_timeSeries->numRows(); j++)
       {
-        dateTime1 = m_timeSeries->dateTime(j);
-        m_validLength ++;
+        dateTime = m_timeSeries->dateTime(j);
 
-        if(dateTime1 >= endTime)
+        if(dateTime <= endTime)
+        {
+          m_validLength ++;
+        }
+        else
         {
           break;
         }
@@ -81,12 +88,13 @@ void ObjectiveInput::moveToNextDateTime()
 {
   if(provider()->modelComponent()->status() == HydroCouple::IModelComponent::ComponentStatus::Updated)
   {
-    int nextIndex = m_nextDateTimeIndex + 1;
+    //unnecessary fix later
+    int nextIndex = m_nextDateTimeIndex + 1 + m_startDateTimeIndex;
     if( nextIndex < m_startDateTimeIndex + m_validLength &&
         nextIndex < m_timeSeries->numRows())
     {
       m_nextDateTimeIndex ++;
-      m_currentDateTime = m_timeSeries->dateTime(m_nextDateTimeIndex);
+      m_currentDateTime = m_timeSeries->dateTime(nextIndex);
     }
     else
     {
@@ -152,16 +160,25 @@ bool ObjectiveInput::canConsume(HydroCouple::IOutput *provider, QString &message
 
 void ObjectiveInput::retrieveValuesFromProvider()
 {
+
   if(provider()->modelComponent()->status() == HydroCouple::IModelComponent::ComponentStatus::Updated)
   {
-    addTime(new SDKTemporal::DateTime(m_currentDateTime, this));
+    int numTimes = timeCount();
+    double lastDateTime = time(numTimes - 1)->julianDay();
+
+    if(m_currentDateTime != lastDateTime)
+    {
+      addTime(new SDKTemporal::DateTime(m_currentDateTime, nullptr));
+    }
+
     provider()->updateValues(this);
   }
 }
 
 void ObjectiveInput::applyData()
 {
-//  double currentTime = m_objectiveFunctionComponent->timeHorizon()->julianDay();
+
+  //  double currentTime = m_objectiveFunctionComponent->timeHorizon()->julianDay();
   ITimeGeometryComponentDataItem *timeGeometryDataItem = nullptr;
 
   if((timeGeometryDataItem = dynamic_cast<ITimeGeometryComponentDataItem*>(provider())))
@@ -176,7 +193,7 @@ void ObjectiveInput::applyData()
     {
       double factor = 0.0;
 
-       if(providerCurrentTime > providerPreviousTime)
+      if(providerCurrentTime > providerPreviousTime)
       {
         double denom = providerCurrentTime - providerPreviousTime;
         double numer = m_currentDateTime - providerPreviousTime;
@@ -200,7 +217,7 @@ void ObjectiveInput::applyData()
       for(auto it : m_geometryMapping)
       {
         double value = 0;
-        timeGeometryDataItem->getValue(currentTimeIndex,it.second, & value);
+        timeGeometryDataItem->getValue(currentTimeIndex,it.second, &value);
         setValue(timeCount() -1, it.first, &value);
       }
     }

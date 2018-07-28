@@ -29,16 +29,18 @@ TSObjectiveFunctionComponent::TSObjectiveFunctionComponent(const QString &id, TS
 
 TSObjectiveFunctionComponent::~TSObjectiveFunctionComponent()
 {
-  if(m_parent)
-  {
-    m_parent->removeClone(this);
-  }
 
   while (m_clones.size())
   {
     TSObjectiveFunctionComponent *clone =  dynamic_cast<TSObjectiveFunctionComponent*>(m_clones.first());
     removeClone(clone);
     delete clone;
+  }
+
+  if(m_parent)
+  {
+    m_parent->removeClone(this);
+    m_parent = nullptr;
   }
 }
 
@@ -60,8 +62,6 @@ void TSObjectiveFunctionComponent::prepare()
     }
 
     progressChecker()->reset(m_startDate, m_endDate);
-
-
 
     updateOutputValues(QList<HydroCouple::IOutput*>());
 
@@ -103,7 +103,7 @@ void TSObjectiveFunctionComponent::update(const QList<HydroCouple::IOutput *> &r
 
       if(progressChecker()->performStep(minDate))
       {
-        setStatus(IModelComponent::Updated , "Simulation performed time-step | DateTime: " + QString::number(minDate) , progressChecker()->progress());
+        setStatus(IModelComponent::Updated , "Simulation performed time-step | DateTime: " + QString::number(minDate, 'f') , progressChecker()->progress());
       }
       else
       {
@@ -197,7 +197,7 @@ bool TSObjectiveFunctionComponent::removeClone(TSObjectiveFunctionComponent *com
   int removed;
 
 #ifdef USE_OPENMP
-#pragma omp critical
+#pragma omp critical (TSObjectiveFunctionComponent)
 #endif
   {
     removed = m_clones.removeAll(component);
@@ -288,7 +288,7 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
 
   m_inputTSFiles.clear();
 
-  if(inputFile.isFile() && inputFile.exists())
+  if(inputFile.isFile() && inputFile.exists() && !inputFile.isDir())
   {
     QFile file(inputFile.absoluteFilePath());
 
@@ -489,6 +489,9 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
 
   if (!outputCSVFile.isEmpty() && !outputCSVFile.isNull())
   {
+    if(m_outputCSVFile.isDir())
+      return true;
+
     if (m_outputCSVStream.device() == nullptr)
     {
       QFile *device = new QFile(outputCSVFile, this);
@@ -599,7 +602,7 @@ void TSObjectiveFunctionComponent::writeOutput()
         m_outputCSVStream <<  ", " << value;
       }
 
-      for(int i = 1; i < m_objectiveOutputs.size(); i++)
+      for(size_t i = 1; i < m_objectiveOutputs.size(); i++)
       {
         objectiveOutput = m_objectiveOutputs[i];
 
