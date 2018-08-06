@@ -17,7 +17,7 @@ ObjectiveInput::ObjectiveInput(const QString &id,
                                TSObjectiveFunctionComponent *component)
   : TimeGeometryInputDouble(id, geometryType, timeDimension, geometryDimension, valueDefinition, component),
     m_startDateTimeIndex(0),
-    m_validLength(0),
+    m_endDateTimeIndex(0),
     m_nextDateTimeIndex(0),
     m_timeSeries(timeSeries),
     m_objectiveFunctionComponent(component)
@@ -35,8 +35,6 @@ void ObjectiveInput::initialize()
   double startTime = m_objectiveFunctionComponent->timeHorizon()->julianDay();
   double endTime = startTime + m_objectiveFunctionComponent->timeHorizon()->duration();
 
-  m_validLength = 0;
-
   for(int i = 0 ; i < m_timeSeries->numRows() - 1; i++)
   {
     double dateTime = m_timeSeries->dateTime(i);
@@ -44,12 +42,10 @@ void ObjectiveInput::initialize()
     if(dateTime >= startTime)
     {
       m_startDateTimeIndex = i;
-      m_nextDateTimeIndex = 0;
+      m_nextDateTimeIndex = i;
       m_currentDateTime = dateTime;
 
       addTime(new SDKTemporal::DateTime(m_currentDateTime, nullptr));
-
-      m_validLength = 0;
 
       for(int j = i; j < m_timeSeries->numRows(); j++)
       {
@@ -57,7 +53,7 @@ void ObjectiveInput::initialize()
 
         if(dateTime <= endTime)
         {
-          m_validLength ++;
+          m_endDateTimeIndex = j;
         }
         else
         {
@@ -76,7 +72,7 @@ int ObjectiveInput::startDateTimeIndex() const
 
 int ObjectiveInput::recordLength() const
 {
-  return m_validLength;
+  return m_endDateTimeIndex - m_startDateTimeIndex + 1;
 }
 
 double ObjectiveInput::currentDateTime() const
@@ -89,12 +85,13 @@ void ObjectiveInput::moveToNextDateTime()
   if(provider()->modelComponent()->status() == HydroCouple::IModelComponent::ComponentStatus::Updated)
   {
     //unnecessary fix later
-    int nextIndex = m_nextDateTimeIndex + 1 + m_startDateTimeIndex;
-    if( nextIndex < m_startDateTimeIndex + m_validLength &&
+    int nextIndex = m_nextDateTimeIndex + 1;
+
+    if( nextIndex <= m_endDateTimeIndex &&
         nextIndex < m_timeSeries->numRows())
     {
-      m_nextDateTimeIndex ++;
-      m_currentDateTime = m_timeSeries->dateTime(nextIndex);
+      m_nextDateTimeIndex++;
+      m_currentDateTime = m_timeSeries->dateTime(m_nextDateTimeIndex);
     }
     else
     {

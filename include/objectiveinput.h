@@ -57,7 +57,7 @@ class TSOBJECTIVEFUNCTIONCOMPONENT_EXPORT ObjectiveInput : public TimeGeometryIn
   private:
 
     double m_currentDateTime;
-    int m_startDateTimeIndex, m_validLength, m_nextDateTimeIndex;
+    int m_startDateTimeIndex, m_endDateTimeIndex, m_nextDateTimeIndex;
     std::unordered_map<int,int> m_geometryMapping;
     TimeSeries *m_timeSeries;
     TSObjectiveFunctionComponent *m_objectiveFunctionComponent;
