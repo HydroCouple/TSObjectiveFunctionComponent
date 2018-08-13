@@ -192,6 +192,30 @@ QList<HydroCouple::ICloneableModelComponent*> TSObjectiveFunctionComponent::clon
   return m_clones;
 }
 
+void TSObjectiveFunctionComponent::applyInputValues()
+{
+  std::map<double, std::list<int>> updateOrder;
+
+  for(size_t i = 0; i < m_objectiveInputs.size(); i++)
+  {
+    ObjectiveInput *objectiveInput = m_objectiveInputs[i];
+    double time = objectiveInput->time(objectiveInput->timeCount() - 1)->julianDay();
+    updateOrder[time].push_back(i);
+  }
+
+  for(auto it = updateOrder.begin(); it != updateOrder.end(); it++)
+  {
+    std::list<int> list = it->second;
+
+    for(int i : list)
+    {
+      ObjectiveInput *objectiveInput = m_objectiveInputs[i];
+      objectiveInput->retrieveValuesFromProvider();
+      objectiveInput->applyData();
+    }
+  }
+}
+
 bool TSObjectiveFunctionComponent::removeClone(TSObjectiveFunctionComponent *component)
 {
   int removed;

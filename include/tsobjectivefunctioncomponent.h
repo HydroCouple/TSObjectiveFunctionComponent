@@ -84,6 +84,9 @@ class TSOBJECTIVEFUNCTIONCOMPONENT_EXPORT TSObjectiveFunctionComponent : public 
      */
     QList<HydroCouple::ICloneableModelComponent*> clones() const override;
 
+
+    void applyInputValues() override;
+
   protected:
 
     /*!
