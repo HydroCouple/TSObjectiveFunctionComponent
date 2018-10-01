@@ -110,6 +110,7 @@ void ObjectiveOutput::updateValues()
             }
 
             double metric = numer/denom;
+            metric = isinf(metric) || isnan(metric) ? std::numeric_limits<double>::max() : metric;
             setValue(g, &metric);
           }
           break;
@@ -124,6 +125,7 @@ void ObjectiveOutput::updateValues()
             }
 
             double metric = sqrt(sumDiffSqr / numValues);
+            metric = isinf(metric) || isnan(metric) ? std::numeric_limits<double>::max() : metric;
             setValue(g, &metric);
           }
           break;
@@ -137,6 +139,7 @@ void ObjectiveOutput::updateValues()
             }
 
             double metric = sqrt(sumAbsDiff / numValues);
+            metric = isinf(metric) || isnan(metric) ? std::numeric_limits<double>::max() : metric;
             setValue(g, &metric);
           }
           break;

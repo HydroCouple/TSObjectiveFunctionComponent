@@ -10,7 +10,7 @@ TSObjectiveFunctionComponentInfo::TSObjectiveFunctionComponentInfo(QObject *pare
 
   setId("Time Series Objective Function 1.0.0");
   setCaption("TS Objective Function Component");
-  setIconFilePath("./../../resources/images/hydrocouplecomposer.png");
+  setIconFilePath(":/TSObjectiveFunctionComponent/tsobjectivefunctioncomponenticon");
   setDescription("A time series objective function calculator");
   setCategory("Parameter Estimation & Uncertainty");
   setCopyright("");

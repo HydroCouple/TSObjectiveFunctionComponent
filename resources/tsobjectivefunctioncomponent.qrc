@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/TSObjectiveFunctionComponent">
+        <file alias="tsobjectivefunctioncomponenticon">images/tsobjectivefunctioncomponenticon.png</file>
+    </qresource>
+</RCC>

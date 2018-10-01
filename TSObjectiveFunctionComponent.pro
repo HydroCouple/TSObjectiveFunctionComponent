@@ -309,3 +309,6 @@ CONFIG(release, debug|release) {
         }
     }
 }
+
+RESOURCES += \
+    resources/tsobjectivefunctioncomponent.qrc
