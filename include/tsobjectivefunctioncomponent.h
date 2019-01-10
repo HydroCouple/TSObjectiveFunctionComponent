@@ -6,7 +6,7 @@
 #include "tsobjectivefunctioncomponent_global.h"
 #include "temporal/abstracttimemodelcomponent.h"
 #include "spatial/geometry.h"
-#include "timeseries.h"
+#include "temporal/timeseries.h"
 
 #include <unordered_map>
 #include <QTextStream>

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "objectiveoutput.h"
 #include "hydrocoupletemporal.h"
-#include "timeseries.h"
+#include "temporal/timeseries.h"
 #include "core/dimension.h"
 #include "core/valuedefinition.h"
 

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "objectiveinput.h"
-#include "timeseries.h"
+#include "temporal/timeseries.h"
 #include "spatial/geometry.h"
 #include "temporal/timedata.h"
 #include "core/valuedefinition.h"
