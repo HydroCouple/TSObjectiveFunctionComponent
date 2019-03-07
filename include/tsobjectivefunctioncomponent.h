@@ -161,6 +161,7 @@ class TSOBJECTIVEFUNCTIONCOMPONENT_EXPORT TSObjectiveFunctionComponent : public 
     static const std::unordered_map<std::string,int> m_optionsFlags;
 
     std::vector<std::string> m_objectiveNames;
+    std::vector<std::string> m_objectiveDesc;
     std::vector<Algorithm> m_algorithms;
     std::vector<TimeSeries*> m_inputTSFiles;
     std::unordered_map<std::string, QList<QSharedPointer<HCGeometry>>> m_geometries;

@@ -305,6 +305,7 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
   QFileInfo inputFile = getAbsoluteFilePath(inputFilePath);
 
   m_objectiveNames.clear();
+  m_objectiveDesc.clear();
   m_algorithms.clear();
 
   for(TimeSeries *ts : m_inputTSFiles)
@@ -376,9 +377,10 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
                 break;
               case 2:
                 {
-                  QStringList cols = line.split(delimiters, QString::SkipEmptyParts);
 
-                  if(cols.size() == 3)
+                  QStringList cols = TimeSeries::splitLine(line, "\\,|\\t|\\;|\\s");
+
+                  if(cols.size() >= 3)
                   {
                     QFileInfo tsFile = getAbsoluteFilePath(cols[2]);
 
@@ -413,6 +415,15 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
                         m_objectiveNames.push_back(cols[0].toStdString());
                         m_algorithms.push_back(algorithm);
                         m_inputTSFiles.push_back(timeSeriesObj);
+
+                        if(cols.size() == 4)
+                        {
+                          m_objectiveDesc.push_back(cols[3].toStdString());
+                        }
+                        else
+                        {
+                          m_objectiveDesc.push_back(cols[0].toStdString());
+                        }
                       }
                       else
                       {
@@ -425,6 +436,8 @@ bool TSObjectiveFunctionComponent::initializeInputFilesArguments(QString &messag
                       message = "Time series file does not exist";
                       return false;
                     }
+
+
                   }
                 }
                 break;
@@ -548,7 +561,8 @@ void TSObjectiveFunctionComponent::createInputs()
 
     ObjectiveInput *objectiveInput = new ObjectiveInput(name, m_inputTSFiles[i], m_timeDimension, m_geometryDimension, geometries[0]->geometryType(), quantity, this);
     objectiveInput->addGeometries(geometries);
-    objectiveInput->setCaption(name);
+    objectiveInput->setCaption(QString::fromStdString(m_objectiveDesc[i]));
+    objectiveInput->setDescription(QString::fromStdString(m_objectiveDesc[i]));
     objectiveInput->initialize();
 
     m_objectiveInputs.push_back(objectiveInput);
@@ -567,8 +581,8 @@ void TSObjectiveFunctionComponent::createOutputs()
 
     ObjectiveOutput *objectiveOutput = new ObjectiveOutput(objectiveInput->id(), m_algorithms[i], objectiveInput, this);
     objectiveOutput->addGeometries(geometries);
-    objectiveOutput->setCaption(name);
-
+    objectiveOutput->setCaption(QString::fromStdString(m_objectiveDesc[i]));
+    objectiveOutput->setDescription(QString::fromStdString(m_objectiveDesc[i]));
     m_objectiveOutputs.push_back(objectiveOutput);
     addOutput(objectiveOutput);
   }
